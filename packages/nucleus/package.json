@@ -10,7 +10,12 @@
     "build": "echo 'TODO'"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./routes/nuclei": "./src/routes/nuclei.ts",
+    "./schemas": "./src/schemas.ts",
+    "./db/repository": "./src/db/repository.ts",
+    "./services/nucleusService": "./src/services/nucleusService.ts",
+    "./i18n": "./src/i18n/index.ts"
   },
   "peerDependencies": {
     "@openrollcall/plugin-registry": "*",
