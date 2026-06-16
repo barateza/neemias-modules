@@ -38,22 +38,33 @@ CREATE INDEX IF NOT EXISTS idx_nuclei_status ON nuclei(status);
 `;
 
 // ── Singleton instances ──────────────────────────────────────────────────────
-// These are created lazily when the core initializes them via hooks.
 
 let _repository: NucleusRepository | null = null;
 let _service: NucleusService | null = null;
 
 export function getNucleusRepository(): NucleusRepository {
-  if (!_repository) throw new Error("NucleusRepository not initialized. Plugin must be registered first.");
+  if (!_repository) throw new Error("NucleusRepository not initialized.");
   return _repository;
 }
 
 export function getNucleusService(): NucleusService {
-  if (!_service) throw new Error("NucleusService not initialized. Plugin must be registered first.");
+  if (!_service) throw new Error("NucleusService not initialized.");
   return _service;
 }
 
 // ── Plugin Registration ──────────────────────────────────────────────────────
+
+interface WorkerMiddlewares {
+  requireAuth: () => unknown;
+  requireRole: (roles: string[]) => unknown;
+}
+
+type RouteFn = (
+  method: string,
+  path: string,
+  middlewares: unknown[],
+  handler: (...args: any[]) => Promise<Response>
+) => void;
 
 export const nucleusPlugin: Plugin = {
   id: "nucleus",
@@ -61,58 +72,35 @@ export const nucleusPlugin: Plugin = {
   version: "1.0.0",
   minCoreVersion: "1.0.0",
 
-  // ── Worker API routes ───────────────────────────────────────────────────────
-  registerWorkerRoutes: (route, _helpers?) => {
-    const { requireAuth } = { requireAuth: () => ({} as any) };
-    const { requireRole } = { requireRole: () => ({} as any) };
+  registerWorkerRoutes: (route: unknown, middlewares: unknown) => {
+    const r = route as RouteFn;
+    const mw = middlewares as WorkerMiddlewares;
 
-    route("GET",    "/api/v1/nuclei",             [requireAuth()],                              handleListNuclei);
-    route("POST",   "/api/v1/nuclei",             [requireAuth(), requireRole(["ADMIN"])],       handleCreateNucleus);
-    route("PATCH",  "/api/v1/nuclei/:nucleusId",  [requireAuth(), requireRole(["ADMIN"])],       handleUpdateNucleus);
-    route("POST",   "/api/v1/nuclei/:nucleusId/delete", [requireAuth(), requireRole(["ADMIN"])], handleDeleteNucleus);
+    r("GET",    "/api/v1/nuclei",                    [mw.requireAuth()],                              handleListNuclei);
+    r("POST",   "/api/v1/nuclei",                    [mw.requireAuth(), mw.requireRole(["ADMIN"])],    handleCreateNucleus);
+    r("PATCH",  "/api/v1/nuclei/:nucleusId",         [mw.requireAuth(), mw.requireRole(["ADMIN"])],    handleUpdateNucleus);
+    r("POST",   "/api/v1/nuclei/:nucleusId/delete",  [mw.requireAuth(), mw.requireRole(["ADMIN"])],    handleDeleteNucleus);
   },
 
-  // ── React Router routes ────────────────────────────────────────────────────
-  // Note: NucleiPage stays in core (imports from @neemias/nucleus for service/repo).
-  // The React routes are registered by the core's router directly.
   registerReactRoutes: () => [
-    // Routes are registered by the core via collectPluginRoutes() in routes.tsx.
-    // When the module provides a NucleiPage component, add:
+    // React routes registered by core via collectPluginRoutes()
+    // When NucleiPage is ready to be imported from the module, add:
     // { path: "/nuclei", lazy: () => import("@neemias/nucleus/pages") },
   ],
 
-  // ── i18n ────────────────────────────────────────────────────────────────────
   registerI18n: () => nucleusI18n,
 
-  // ── Permissions ─────────────────────────────────────────────────────────────
   registerPermissions: () => ({
     "nuclei.manage": ["ADMIN"],
   }),
 
-  // ── D1 Migration ────────────────────────────────────────────────────────────
   registerMigrations: () => [
     { version: 1, sql: NUCLEI_MIGRATION_SQL },
   ],
 
-  // ── Dexie stores ────────────────────────────────────────────────────────────
   registerDexieStores: (db: any) => {
-    // Initialize the repository with the Dexie instance
     _repository = new NucleusRepository(db);
     _service = new NucleusService(_repository);
-
-    // Migrate: Dexie table registration
-    // This is a no-op if the table already exists in the core schema.
-    try {
-      // Check if nuclei table exists in the schema
-      const existingStores = (db as any).tables?.map?.((t: any) => t.name) ?? [];
-      if (!existingStores.includes("nuclei")) {
-        // Nuclei table registration would go here.
-        // In practice, the table is already registered in the core's db.ts.
-        // This hook is for the future when nuclei is fully extracted.
-      }
-    } catch {
-      // Dexie version management is handled by the core.
-    }
   },
 };
 
