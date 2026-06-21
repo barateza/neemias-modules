@@ -4,13 +4,13 @@
  * nucleusCreateSchema and nucleusUpdateSchema live in the module
  * because they are only needed by the nuclei API, not by the core.
  *
- * The base nucleusSchema and NucleusRegion stay in @openrollcall/schemas
+ * The base nucleusSchema and NucleusRegion stay in @neemias/schemas
  * because the Student entity depends on them.
  *
  * @license BSL-1.1
  */
 
-import { nucleusSchema } from "@openrollcall/schemas";
+import { nucleusSchema } from "@neemias/schemas";
 
 export const nucleusCreateSchema = nucleusSchema.pick({
   region: true,

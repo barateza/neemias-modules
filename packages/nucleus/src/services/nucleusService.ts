@@ -7,7 +7,7 @@
  * @license BSL-1.1
  */
 
-import type { NucleusRegion } from "@openrollcall/schemas";
+import type { NucleusRegion } from "@neemias/schemas";
 import type { NucleusRepository } from "./repository";
 
 export class NucleusServiceError extends Error {

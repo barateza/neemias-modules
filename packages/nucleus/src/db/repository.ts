@@ -7,7 +7,7 @@
  * @license BSL-1.1
  */
 
-import type { Nucleus, NucleusRegion } from "@openrollcall/schemas";
+import type { Nucleus, NucleusRegion } from "@neemias/schemas";
 
 export interface NucleusDB {
   nuclei: {

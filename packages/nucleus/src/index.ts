@@ -8,9 +8,9 @@
  * @see https://github.com/barateza/neemias-modules
  */
 
-import { registerPlugin } from "@openrollcall/plugin-registry";
-import type { Plugin } from "@openrollcall/plugin-registry";
-import { NUCLEUS_REGIONS } from "@openrollcall/schemas";
+import { registerPlugin } from "@neemias/plugin-registry";
+import type { Plugin } from "@neemias/plugin-registry";
+import { NUCLEUS_REGIONS } from "@neemias/schemas";
 
 // ── Module sub-modules ───────────────────────────────────────────────────────
 import {

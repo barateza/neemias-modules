@@ -8,8 +8,8 @@
  * @license BSL-1.1
  */
 
-import { HttpError, sanitizePayload } from "@openrollcall/schemas";
-import type { AuthPrincipal } from "@openrollcall/schemas";
+import { HttpError, sanitizePayload } from "@neemias/schemas";
+import type { AuthPrincipal } from "@neemias/schemas";
 
 // ── Schemas (module-defined) ─────────────────────────────────────────────────
 import { nucleusCreateSchema, nucleusUpdateSchema } from "../schemas";
