@@ -8,7 +8,7 @@
  */
 
 import type { NucleusRegion } from "@neemias/schemas";
-import type { NucleusRepository } from "./repository";
+import type { NucleusRepository } from "../db/repository";
 
 export class NucleusServiceError extends Error {
   constructor(message: string) {
