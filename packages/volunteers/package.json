@@ -1,0 +1,24 @@
+{
+  "name": "@neemias/volunteers",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Módulo de Voluntários — gestão de pessoas que servem na igreja",
+  "license": "BSL-1.1",
+  "scripts": {
+    "test": "echo 'TODO'",
+    "build": "echo 'TODO'"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./routes/volunteers": "./src/routes/volunteers.ts",
+    "./schemas": "./src/schemas.ts",
+    "./db/repository": "./src/db/repository.ts",
+    "./services/volunteerService": "./src/services/volunteerService.ts",
+    "./i18n": "./src/i18n/index.ts"
+  },
+  "peerDependencies": {
+    "@openrollcall/plugin-registry": "*",
+    "@openrollcall/schemas": "*"
+  }
+}
