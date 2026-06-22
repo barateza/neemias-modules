@@ -27,10 +27,14 @@ export const volunteerCreateSchema = z.object({
   notes: z.string().max(2000).optional().nullable(),
   consentPhoto: z.boolean(),
   consentData: z.boolean(),
-  classes: z.array(z.object({
-    classId: z.string().uuid(),
-    role: z.enum(["TEACHER", "ASSISTANT"]),
-  })).default([]),
+  classes: z
+    .array(
+      z.object({
+        classId: z.string().uuid(),
+        role: z.enum(["TEACHER", "ASSISTANT"]),
+      }),
+    )
+    .default([]),
 });
 
 export const volunteerUpdateSchema = volunteerCreateSchema.partial();

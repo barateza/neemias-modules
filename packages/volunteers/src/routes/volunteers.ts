@@ -1,7 +1,7 @@
-import { HttpError, sanitizePayload } from "@openrollcall/schemas";
-import type { AuthPrincipal } from "@openrollcall/schemas";
+import { HttpError, sanitizePayload } from "@neemias/schemas";
+import type { AuthPrincipal } from "@neemias/schemas";
 import { volunteerCreateSchema, volunteerUpdateSchema, volunteerClassSchema, guardianSchema } from "../schemas";
-import { applyEvent } from "@openrollcall/schemas/workers";
+import { applyEvent } from "@neemias/schemas/workers";
 
 interface ModuleEnv { DB: { prepare(sql: string): D1PreparedStatement }; }
 interface D1PreparedStatement {

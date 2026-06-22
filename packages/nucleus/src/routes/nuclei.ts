@@ -8,8 +8,8 @@
  * @license BSL-1.1
  */
 
-import { HttpError, sanitizePayload } from "@neemias/schemas";
 import type { AuthPrincipal } from "@neemias/schemas";
+import { HttpError, sanitizePayload } from "@neemias/schemas";
 
 // ── Schemas (module-defined) ─────────────────────────────────────────────────
 import { nucleusCreateSchema, nucleusUpdateSchema } from "../schemas";
@@ -48,7 +48,7 @@ function randomUUID(): string {
 
 async function parseBody<T>(
   request: Request,
-  schema?: { parse: (data: unknown) => T }
+  schema?: { parse: (data: unknown) => T },
 ): Promise<T> {
   let body: unknown = {};
   try {
@@ -64,7 +64,7 @@ async function parseBody<T>(
       throw new HttpError(
         400,
         "VALIDATION_FAILED",
-        error instanceof Error ? error.message : "Validation failed"
+        error instanceof Error ? error.message : "Validation failed",
       );
     }
   }
@@ -98,7 +98,7 @@ export async function handleListNuclei(
   env: ModuleEnv,
   _ctx: ExecutionContext,
   _principal: AuthPrincipal,
-  _corrId: string
+  _corrId: string,
 ): Promise<Response> {
   const url = new URL(request.url);
   const region = url.searchParams.get("region");
@@ -121,7 +121,7 @@ export async function handleCreateNucleus(
   env: ModuleEnv,
   _ctx: ExecutionContext,
   _principal: AuthPrincipal,
-  _corrId: string
+  _corrId: string,
 ): Promise<Response> {
   const payload = await parseBody(request, nucleusCreateSchema);
   const db = env.DB;
@@ -129,13 +129,20 @@ export async function handleCreateNucleus(
   const ts = nowISO();
   await db
     .prepare(
-      "INSERT INTO nuclei(nucleus_id, region, name, status, created_at, updated_at) VALUES (?1, ?2, ?3, 'ACTIVE', ?4, ?4)"
+      "INSERT INTO nuclei(nucleus_id, region, name, status, created_at, updated_at) VALUES (?1, ?2, ?3, 'ACTIVE', ?4, ?4)",
     )
     .bind(nucleusId, payload.region, payload.name, ts)
     .run();
   return json(
-    { nucleusId, region: payload.region, name: payload.name, status: "ACTIVE", createdAt: ts, updatedAt: ts },
-    201
+    {
+      nucleusId,
+      region: payload.region,
+      name: payload.name,
+      status: "ACTIVE",
+      createdAt: ts,
+      updatedAt: ts,
+    },
+    201,
   );
 }
 
@@ -144,7 +151,7 @@ export async function handleUpdateNucleus(
   env: ModuleEnv,
   _ctx: ExecutionContext,
   _principal: AuthPrincipal,
-  _corrId: string
+  _corrId: string,
 ): Promise<Response> {
   const payload = await parseBody(request, nucleusUpdateSchema);
   const url = new URL(request.url);
@@ -165,7 +172,7 @@ export async function handleUpdateNucleus(
   params.push(nowISO());
   const result = await db
     .prepare(
-      `UPDATE nuclei SET ${fields.join(", ")} WHERE nucleus_id = ?${params.length - 1} RETURNING nucleus_id, region, name, status, created_at, updated_at`
+      `UPDATE nuclei SET ${fields.join(", ")} WHERE nucleus_id = ?${params.length - 1} RETURNING nucleus_id, region, name, status, created_at, updated_at`,
     )
     .bind(...params)
     .first<NucleusRow>();
@@ -178,14 +185,16 @@ export async function handleDeleteNucleus(
   env: ModuleEnv,
   _ctx: ExecutionContext,
   _principal: AuthPrincipal,
-  _corrId: string
+  _corrId: string,
 ): Promise<Response> {
   const url = new URL(request.url);
   const nucleusId = url.pathname.split("/")[4];
   const db = env.DB;
   const ts = nowISO();
   const result = await db
-    .prepare("UPDATE nuclei SET status = 'DELETED', updated_at = ?1 WHERE nucleus_id = ?2 RETURNING nucleus_id")
+    .prepare(
+      "UPDATE nuclei SET status = 'DELETED', updated_at = ?1 WHERE nucleus_id = ?2 RETURNING nucleus_id",
+    )
     .bind(ts, nucleusId)
     .first<{ nucleus_id: string }>();
   if (!result) throw new HttpError(404, "NOT_FOUND", "Nucleus not found");

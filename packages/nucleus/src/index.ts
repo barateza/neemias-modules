@@ -8,19 +8,18 @@
  * @see https://github.com/barateza/neemias-modules
  */
 
-import { registerPlugin } from "@neemias/plugin-registry";
 import type { Plugin } from "@neemias/plugin-registry";
+import { registerPlugin } from "@neemias/plugin-registry";
 import { NUCLEUS_REGIONS } from "@neemias/schemas";
-
+import { NucleusRepository } from "./db/repository";
+import { nucleusI18n } from "./i18n";
 // ── Module sub-modules ───────────────────────────────────────────────────────
 import {
-  handleListNuclei,
   handleCreateNucleus,
-  handleUpdateNucleus,
   handleDeleteNucleus,
+  handleListNuclei,
+  handleUpdateNucleus,
 } from "./routes/nuclei";
-import { nucleusI18n } from "./i18n";
-import { NucleusRepository } from "./db/repository";
 import { NucleusService } from "./services/nucleusService";
 
 // ── D1 Migration ─────────────────────────────────────────────────────────────
@@ -63,7 +62,7 @@ type RouteFn = (
   method: string,
   path: string,
   middlewares: unknown[],
-  handler: (...args: any[]) => Promise<Response>
+  handler: (...args: any[]) => Promise<Response>,
 ) => void;
 
 export const nucleusPlugin: Plugin = {
@@ -76,10 +75,20 @@ export const nucleusPlugin: Plugin = {
     const r = route as RouteFn;
     const mw = middlewares as WorkerMiddlewares;
 
-    r("GET",    "/api/v1/nuclei",                    [mw.requireAuth()],                              handleListNuclei);
-    r("POST",   "/api/v1/nuclei",                    [mw.requireAuth(), mw.requireRole(["ADMIN"])],    handleCreateNucleus);
-    r("PATCH",  "/api/v1/nuclei/:nucleusId",         [mw.requireAuth(), mw.requireRole(["ADMIN"])],    handleUpdateNucleus);
-    r("POST",   "/api/v1/nuclei/:nucleusId/delete",  [mw.requireAuth(), mw.requireRole(["ADMIN"])],    handleDeleteNucleus);
+    r("GET", "/api/v1/nuclei", [mw.requireAuth()], handleListNuclei);
+    r("POST", "/api/v1/nuclei", [mw.requireAuth(), mw.requireRole(["ADMIN"])], handleCreateNucleus);
+    r(
+      "PATCH",
+      "/api/v1/nuclei/:nucleusId",
+      [mw.requireAuth(), mw.requireRole(["ADMIN"])],
+      handleUpdateNucleus,
+    );
+    r(
+      "POST",
+      "/api/v1/nuclei/:nucleusId/delete",
+      [mw.requireAuth(), mw.requireRole(["ADMIN"])],
+      handleDeleteNucleus,
+    );
   },
 
   registerReactRoutes: () => [
@@ -94,9 +103,7 @@ export const nucleusPlugin: Plugin = {
     "nuclei.manage": ["ADMIN"],
   }),
 
-  registerMigrations: () => [
-    { version: 1, sql: NUCLEI_MIGRATION_SQL },
-  ],
+  registerMigrations: () => [{ version: 1, sql: NUCLEI_MIGRATION_SQL }],
 
   registerDexieStores: (db: any) => {
     _repository = new NucleusRepository(db);

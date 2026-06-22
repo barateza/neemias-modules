@@ -1,4 +1,4 @@
-import { registerPlugin, type Plugin, type EntityProjection } from "@openrollcall/plugin-registry";
+import { registerPlugin, type Plugin, type EntityProjection } from "@neemias/plugin-registry";
 
 import {
   handleListVolunteers, handleCreateVolunteer, handleUpdateVolunteer,

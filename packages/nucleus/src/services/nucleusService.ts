@@ -62,11 +62,7 @@ export class NucleusService {
     await this.repo.update(input.nucleusId, changes as any);
   }
 
-  async remove(input: {
-    actorRole: string;
-    nucleusId: string;
-    timestamp: string;
-  }): Promise<void> {
+  async remove(input: { actorRole: string; nucleusId: string; timestamp: string }): Promise<void> {
     if (input.actorRole !== "ADMIN") {
       throw new NucleusServiceError("UNAUTHORIZED");
     }
