@@ -1,11 +1,16 @@
-import { registerPlugin, type Plugin, type EntityProjection } from "@neemias/plugin-registry";
-
-import {
-  handleListVolunteers, handleCreateVolunteer, handleUpdateVolunteer,
-  handleDeleteVolunteer, handleGetVolunteer, handleAddVolunteerClass,
-  handleRemoveVolunteerClass, handleAddVolunteerGuardian, handleRemoveVolunteerGuardian,
-} from "./routes/volunteers";
+import { type EntityProjection, type Plugin, registerPlugin } from "@neemias/plugin-registry";
 import { volunteerI18n } from "./i18n";
+import {
+  handleAddVolunteerClass,
+  handleAddVolunteerGuardian,
+  handleCreateVolunteer,
+  handleDeleteVolunteer,
+  handleGetVolunteer,
+  handleListVolunteers,
+  handleRemoveVolunteerClass,
+  handleRemoveVolunteerGuardian,
+  handleUpdateVolunteer,
+} from "./routes/volunteers";
 
 const VOLUNTEER_MIGRATION_SQL = `
 CREATE TABLE IF NOT EXISTS volunteers (
@@ -71,7 +76,12 @@ interface WorkerMiddlewares {
   requireAuth: () => unknown;
   requireRole: (roles: string[]) => unknown;
 }
-type RouteFn = (method: string, path: string, middlewares: unknown[], handler: (...args: any[]) => Promise<Response>) => void;
+type RouteFn = (
+  method: string,
+  path: string,
+  middlewares: unknown[],
+  handler: (...args: any[]) => Promise<Response>,
+) => void;
 
 export const volunteersPlugin: Plugin = {
   id: "volunteers",
@@ -85,15 +95,50 @@ export const volunteersPlugin: Plugin = {
     const r = route as RouteFn;
     const mw = middlewares as WorkerMiddlewares;
 
-    r("GET",    "/api/v1/volunteers",                       [mw.requireAuth()],                                    handleListVolunteers);
-    r("POST",   "/api/v1/volunteers",                       [mw.requireAuth(), mw.requireRole(["ADMIN", "CADASTRO"])], handleCreateVolunteer);
-    r("PATCH",  "/api/v1/volunteers/:id",                    [mw.requireAuth(), mw.requireRole(["ADMIN", "CADASTRO"])], handleUpdateVolunteer);
-    r("POST",   "/api/v1/volunteers/:id/delete",             [mw.requireAuth(), mw.requireRole(["ADMIN"])],            handleDeleteVolunteer);
-    r("GET",    "/api/v1/volunteers/:id",                    [mw.requireAuth()],                                    handleGetVolunteer);
-    r("POST",   "/api/v1/volunteers/:id/classes",            [mw.requireAuth(), mw.requireRole(["ADMIN", "CADASTRO"])], handleAddVolunteerClass);
-    r("DELETE", "/api/v1/volunteers/:id/classes/:classId",   [mw.requireAuth(), mw.requireRole(["ADMIN"])],            handleRemoveVolunteerClass);
-    r("POST",   "/api/v1/volunteers/:id/guardians",          [mw.requireAuth(), mw.requireRole(["ADMIN", "CADASTRO"])], handleAddVolunteerGuardian);
-    r("DELETE", "/api/v1/volunteers/:id/guardians/:studentId",[mw.requireAuth(), mw.requireRole(["ADMIN"])],            handleRemoveVolunteerGuardian);
+    r("GET", "/api/v1/volunteers", [mw.requireAuth()], handleListVolunteers);
+    r(
+      "POST",
+      "/api/v1/volunteers",
+      [mw.requireAuth(), mw.requireRole(["ADMIN", "CADASTRO"])],
+      handleCreateVolunteer,
+    );
+    r(
+      "PATCH",
+      "/api/v1/volunteers/:id",
+      [mw.requireAuth(), mw.requireRole(["ADMIN", "CADASTRO"])],
+      handleUpdateVolunteer,
+    );
+    r(
+      "POST",
+      "/api/v1/volunteers/:id/delete",
+      [mw.requireAuth(), mw.requireRole(["ADMIN"])],
+      handleDeleteVolunteer,
+    );
+    r("GET", "/api/v1/volunteers/:id", [mw.requireAuth()], handleGetVolunteer);
+    r(
+      "POST",
+      "/api/v1/volunteers/:id/classes",
+      [mw.requireAuth(), mw.requireRole(["ADMIN", "CADASTRO"])],
+      handleAddVolunteerClass,
+    );
+    r(
+      "DELETE",
+      "/api/v1/volunteers/:id/classes/:classId",
+      [mw.requireAuth(), mw.requireRole(["ADMIN"])],
+      handleRemoveVolunteerClass,
+    );
+    r(
+      "POST",
+      "/api/v1/volunteers/:id/guardians",
+      [mw.requireAuth(), mw.requireRole(["ADMIN", "CADASTRO"])],
+      handleAddVolunteerGuardian,
+    );
+    r(
+      "DELETE",
+      "/api/v1/volunteers/:id/guardians/:studentId",
+      [mw.requireAuth(), mw.requireRole(["ADMIN"])],
+      handleRemoveVolunteerGuardian,
+    );
   },
 
   registerReactRoutes: () => [
@@ -108,9 +153,7 @@ export const volunteersPlugin: Plugin = {
     "volunteer.delete": ["ADMIN"],
   }),
 
-  registerMigrations: () => [
-    { version: 1, sql: VOLUNTEER_MIGRATION_SQL },
-  ],
+  registerMigrations: () => [{ version: 1, sql: VOLUNTEER_MIGRATION_SQL }],
 
   registerDexieStores: () => {
     // Dexie stores would be registered here when frontend is ready
