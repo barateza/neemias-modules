@@ -17,4 +17,4 @@ jobs:
           node-version: 22
 
       - name: Format + Lint (Biome)
-        run: npx @biomejs/biome check .
+        run: npx @biomejs/biome check . --indent-style=space --indent-width=2
