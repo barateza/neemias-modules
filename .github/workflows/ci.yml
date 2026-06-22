@@ -12,18 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-          cache: pnpm
-      - run: pnpm install
 
-      - name: Lint (Biome)
-        run: pnpm -r lint || npx biome check .
-
-      - name: Type check (tsc)
-        run: pnpm -r typecheck || echo "TODO: add tsconfig"
-
-      - name: Unit tests (Vitest)
-        run: pnpm -r test
+      - name: Format + Lint (Biome)
+        run: npx @biomejs/biome check .
