@@ -168,7 +168,7 @@ export async function handleUpdateNucleus(
     fields.push(`name = ?${params.length}`);
   }
   params.push(nucleusId);
-  fields.push("updated_at = ?" + (params.length + 1));
+  fields.push(`updated_at = ?${params.length + 1}`);
   params.push(nowISO());
   const result = await db
     .prepare(
